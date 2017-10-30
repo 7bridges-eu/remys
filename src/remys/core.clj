@@ -1,6 +1,9 @@
-(ns remys.core)
+(ns remys.core
+  (:require [clojure.tools.cli :as cli])
+  (:gen-class))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(def cli-options
+  [["-h" "--help"]])
+
+(defn -main [& args]
+  (cli/parse-opts args cli-options))

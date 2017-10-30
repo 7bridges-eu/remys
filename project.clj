@@ -9,10 +9,10 @@
                  [mount "0.1.11"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/java.jdbc "0.7.3"]
+                 [org.clojure/tools.cli "0.3.5"]
                  [ring "1.6.2"]
                  [ring/ring-defaults "0.3.1"]
                  [ring/ring-json "0.4.0"]
                  [ring/ring-mock "0.3.1"]
                  [ring-middleware-format "0.7.2"]]
-
-  :main ^:skip-aot remys.core)
+  :main remys.core)

@@ -1,6 +1,8 @@
 (ns remys.core
   (:require [clojure.string :as string]
-            [clojure.tools.cli :as cli])
+            [clojure.tools.cli :as cli]
+            [mount.core :as mount]
+            [remys.services.mysql :as db])
   (:gen-class))
 
 (def cli-options
@@ -54,7 +56,7 @@
 (defn check-database
   [errors options]
   (when (nil? (get options :database nil))
-    (conj errors "Please specify a DATABASE with `-d` or `--databasea`")))
+    (conj errors "Please specify a DATABASE with `-d` or `--database`")))
 
 (defn check-mandatory-options
   [options]
@@ -90,12 +92,17 @@
 
 (defn start-server!
   [options]
-  (println "Starting server...")
-  (println options))
+  (println "Starting server with the following options:")
+  (println (str "\n" options "\n"))
+  (db/init-database-connection options)
+  (mount/start)
+  (println "Server started!"))
 
 (defn stop-server!
   []
-  (println "Stopping server..."))
+  (println "Stopping server...")
+  (mount/stop)
+  (println "Server stopped!"))
 
 (defn -main [& args]
   (let [{:keys [action options exit-message]} (validate-args args)]

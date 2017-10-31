@@ -5,7 +5,7 @@
             [mount.core :as mount]))
 
 (defn- make-datasource-options [options]
-  (let [{:keys [host port user password db-name]} options]
+  (let [{:keys [hostname port username password database]} options]
     {:auto-commit        true
      :read-only          false
      :connection-timeout 30000
@@ -16,10 +16,10 @@
      :maximum-pool-size  10
      :pool-name          "db-pool"
      :adapter            "mysql"
-     :username           user
+     :username           username
      :password           password
-     :database-name      db-name
-     :server-name        host
+     :database-name      database
+     :server-name        hostname
      :port-number        port}))
 
 (defn connect! [options]

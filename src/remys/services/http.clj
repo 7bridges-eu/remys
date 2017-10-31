@@ -2,10 +2,11 @@
   (:require [compojure.core :as compojure]
             [mount.core :as mount]
             [org.httpkit.server :as server]
+            [remys.api.routes :as api]
             [ring.middleware.reload :as reload]))
 
 (compojure/defroutes app
-  (-> (compojure/routes "")
+  (-> (compojure/routes api/routes)
       reload/wrap-reload))
 
 (defonce server (atom nil))

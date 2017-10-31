@@ -1,10 +1,11 @@
 (ns remys.core
+  (:gen-class)
   (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [mount.core :as mount]
-            [remys.services.http :as http]
-            [remys.services.mysql :as db])
-  (:gen-class))
+            [remys.services
+             [http :as http]
+             [mysql :as db]]))
 
 (def cli-options
   [["-H" "--hostname HOST"
@@ -103,7 +104,8 @@
   (println "Starting server with the following options:")
   (println (str "\n" options "\n"))
   (db/init-database-connection options)
-  (mount/start)
+  (mount/start #'remys.services.mysql/datasource
+               #'remys.services.http/http-server)
   (println "Server started!"))
 
 (defn stop-server!

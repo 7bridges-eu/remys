@@ -67,9 +67,9 @@
   (let [errors []]
     (if (= action "start")
       (-> errors
-         (check-username options)
-         (check-password options)
-         (check-database options))
+          (check-username options)
+          (check-password options)
+          (check-database options))
       errors)))
 
 (defn validate-args

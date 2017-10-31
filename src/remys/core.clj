@@ -46,14 +46,14 @@
       :else ; failed custom validation => exit with usage summary
       {:exit-message (usage summary)})))
 
-(defn exit [status msg]
+(defn exit [msg]
   (println msg)
-  (System/exit status))
+  (System/exit 0))
 
 (defn -main [& args]
-  (let [{:keys [action options exit-message ok?]} (validate-args args)]
+  (let [{:keys [action options exit-message]} (validate-args args)]
     (if exit-message
-      (exit (if ok? 0 1) exit-message)
+      (exit exit-message)
       (case action
         "start" (println "Starting server...")
         "stop"  (println "Stopping server...")))))

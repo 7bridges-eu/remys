@@ -106,6 +106,7 @@
   (db/init-database-connection options)
   (mount/start #'remys.services.mysql/datasource
                #'remys.services.http/http-server)
+  (db/load-schema options)
   (println "Server started!"))
 
 (defn stop-server!

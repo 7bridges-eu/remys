@@ -34,8 +34,8 @@
 (defn init-database-connection
   [options]
   (mount/defstate datasource
-  :start (connect! options)
-  :stop (disconnect! datasource)))
+    :start (connect! options)
+    :stop (disconnect! datasource)))
 
 (defn snake-case->kebab-case
   [column]
@@ -65,7 +65,7 @@
    {}
    output))
 
-(defn query
+(defn query!
   "Execute a SELECT statement using the SQL in `query-sql`."
   [query-sql]
   (jdbc/with-db-connection [conn {:datasource datasource}]
@@ -91,3 +91,21 @@
   "Tiny wrapper around `update!`, just syntactic sugar."
   [query-sql]
   (update! query-sql))
+
+(defn schema!
+  "Load useful informations on all the tables in `db`."
+  [db]
+  (let [query (str "select c.table_name, c.column_name, c.ordinal_position,
+                    c.column_key, c.data_type, c.column_type, c.extra
+                    from information_schema.columns as c
+                    where c.table_schema = '" db
+                   "' order by c.table_name, c.ordinal_position")]
+    (group-by :table-name (query! query))))
+
+(def schema (atom {}))
+
+(defn load-schema
+  [options]
+  (->> (:database options)
+       schema!
+       (reset! schema)))

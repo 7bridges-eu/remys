@@ -45,25 +45,32 @@
 
 (defn check-username
   [errors options]
-  (when (nil? (get options :username nil))
-    (conj errors "Please specify a USERNAME with `-u` or `--username`")))
+  (if (nil? (get options :username nil))
+    (conj errors "Please specify a USERNAME with `-u` or `--username`")
+    errors))
 
 (defn check-password
   [errors options]
-  (when (nil? (get options :password nil))
-    (conj errors "Please specify a PASSWORD with `-p` or `--password`")))
+  (if (nil? (get options :password nil))
+    (conj errors "Please specify a PASSWORD with `-p` or `--password`")
+    errors))
 
 (defn check-database
   [errors options]
-  (when (nil? (get options :database nil))
-    (conj errors "Please specify a DATABASE with `-d` or `--database`")))
+  (if (nil? (get options :database nil))
+    (conj errors "Please specify a DATABASE with `-d` or `--database`")
+    errors))
 
 (defn check-mandatory-options
-  [options]
-  (-> []
-      (check-username options)
-      (check-password options)
-      (check-database options)))
+  "If `action` is \"start\", check that the required parameters are present."
+  [action options]
+  (let [errors []]
+    (if (= action "start")
+      (-> errors
+         (check-username options)
+         (check-password options)
+         (check-database options))
+      errors)))
 
 (defn validate-args
   "Validate command line arguments. Either return a map indicating the program
@@ -72,18 +79,18 @@
   [args]
   (let [{:keys [options arguments errors summary]}
         (cli/parse-opts args cli-options)
-        errors (check-mandatory-options options)]
-    (if (empty? errors)
+        messages (check-mandatory-options (first arguments) options)]
+    (if (empty? messages)
       (cond
-       errors ; errors => exit with description of errors
-       {:exit-message (error-msg errors)}
-       ;; custom validation on arguments
-       (and (= 1 (count arguments))
-            (#{"start" "stop"} (first arguments)))
-       {:action (first arguments) :options options}
-       :else ; failed custom validation => exit with usage summary
-       {:exit-message (usage summary)})
-      {:exit-message (validation-msg errors)})))
+        errors                       ; errors => exit with description of errors
+        {:exit-message (error-msg errors)}
+        ;; custom validation on arguments
+        (and (= 1 (count arguments))
+             (#{"start" "stop"} (first arguments)))
+        {:action (first arguments) :options options}
+        :else              ; failed custom validation => exit with usage summary
+        {:exit-message (usage summary)})
+      {:exit-message (validation-msg messages)})))
 
 (defn exit
   [msg]

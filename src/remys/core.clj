@@ -2,6 +2,7 @@
   (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [mount.core :as mount]
+            [remys.services.http :as http]
             [remys.services.mysql :as db])
   (:gen-class))
 

@@ -9,8 +9,11 @@
       (response/ok (q/show-tables)))
 
     (api/GET "/:table" [table]
+      :query-params [{fields :- String ""}]
       (if (q/table-exists? table)
-        (response/ok (q/query-all table))
+        (if (empty? fields)
+          (response/ok (q/query-all table))
+          (response/ok (q/query-fields table fields)))
         (response/not-found {:msg "Table not found"})))
 
     (api/GET "/:table/describe" [table]

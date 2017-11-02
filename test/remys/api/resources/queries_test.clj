@@ -47,3 +47,8 @@
   (testing "Testing query-fields resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-fields :test "id") {:test "test"})))))
+
+(deftest test-execute-query
+  (testing "Testing execute-query resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/execute-query "test" "1") {:test "test"})))))

@@ -51,3 +51,13 @@
       (let [request (mock/request :get "/api/test/1___1")
             response (http/app request)]
         (is (= (:status response) 200))))))
+
+(deftest test-dynamic
+  (testing "Testing /api/dynamic endpoint"
+    (with-redefs [q/valid-query? (fn [s] s)
+                  q/execute-query (fn [s v] s)]
+      (let [body (json/generate-string {:query "select * from test"})
+            request (-> (mock/request :post "/api/dynamic" body)
+                        (mock/content-type "application/json"))
+            response (http/app request)]
+        (is (= (:status response) 200))))))

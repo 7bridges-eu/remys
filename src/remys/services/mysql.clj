@@ -4,7 +4,9 @@
             [hikari-cp.core :as hikari]
             [mount.core :as mount]))
 
-(defn- make-datasource-options [options]
+(defn- make-datasource-options
+  "Set up the necessary parameters in `options` to connect to a MySQL database."
+  [options]
   (let [{:keys [hostname port username password database]} options]
     {:auto-commit        true
      :read-only          false
@@ -22,7 +24,9 @@
      :server-name        hostname
      :port-number        port}))
 
-(defn connect! [options]
+(defn connect!
+  "Create hikari datasource with the given `options`."
+  [options]
   (-> (make-datasource-options options)
       (hikari/make-datasource)))
 
@@ -32,6 +36,7 @@
   (hikari/close-datasource datasource))
 
 (defn init-database-connection
+  "Create the database component with the given `options`."
   [options]
   (mount/defstate datasource
     :start (connect! options)
@@ -105,6 +110,7 @@
 (def schema (atom {}))
 
 (defn load-schema
+  "Load in memory the schema identified by :database in `options`."
   [options]
   (->> (:database options)
        schema!

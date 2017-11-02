@@ -25,6 +25,12 @@
        (filter #(= (:column-key %) "PRI"))
        (map :column-name)))
 
+(defn escape-string
+  [s]
+  (if (string? s)
+    (str "'" s "'")
+    s))
+
 (defn query-all
   [table]
   (-> (str "select * from " table)
@@ -33,12 +39,14 @@
 (defn query-by-key
   [schema table id]
   (let [pk (first (primary-key schema table))]
-    (-> (str "select * from " table " where " pk " = " id)
-        (db/query!))))
+    (->> (escape-string id)
+         (str "select * from " table " where " pk " = ")
+         (db/query!))))
 
 (defn create-where
   [pks values]
-  (->> (map #(str %1 " = " %2) pks values)
+  (->> (map escape-string values)
+       (map #(str %1 " = " %2) pks)
        (interpose " and ")
        (apply str)))
 

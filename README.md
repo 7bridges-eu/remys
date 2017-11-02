@@ -10,7 +10,8 @@ lein run -- -u <username> -p <password> -d <database> start
 
 The server will be listening on port `3000`.
 
-You can specify the hostname and the port of the your MySQL database:
+You can specify the hostname and the port of the MySQL database you wish to
+interact with:
 
 ``` clojure
 lein run -- -H <hostname> -P <port> -u <username> -p <password> -d <database> start

@@ -19,9 +19,12 @@ lein run -- -H <hostname> -P <port> -u <username> -p <password> -d <database> st
 
 Now you can interact with your database via REST:
 
-``` consol
+``` console
 $ curl -i -X GET 'http://localhost:3000/api/tables'
 ```
+
+remys has been tested using the freely available
+[test_db](https://github.com/datacharmer/test_db).
 
 ## License
 

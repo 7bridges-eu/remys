@@ -17,10 +17,17 @@ interact with:
 lein run -- -H <hostname> -P <port> -u <username> -p <password> -d <database> start
 ```
 
-Now you can interact with your database via REST:
+Now you can interact with your database via REST. Examples:
 
+- get all records from `departments` table:
 ``` console
-$ curl -i -X GET 'http://localhost:3000/api/tables'
+$ curl -i -X GET 'http://localhost:3000/api/departments'
+```
+
+- run a custom query:
+``` console
+$ curl -i -X POST 'http://localhost:3000/api/dynamic' -H "Content-Type:
+application/json" -d '{"query":"select * from salaries limit 100"}'
 ```
 
 remys has been tested using the freely available

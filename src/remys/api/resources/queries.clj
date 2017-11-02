@@ -55,3 +55,21 @@
   (let [fs (string/split fields #",")]
     (-> (str "select " fields " from " table)
         (db/query!))))
+
+(defn valid-query?
+  "Check if the query contains create/delete/drop/update instructions."
+  [query]
+  (nil? (re-matches #"(?i)^.*(create|delete|drop|update).*" query)))
+
+(defn format-params
+  [params]
+  (->> (interpose " and " params)
+       (apply str)))
+
+(defn execute-query
+  [query params]
+  (if (empty? params)
+    (db/query! query)
+    (->> (format-params params)
+         (str query " where ")
+         (db/query!))))

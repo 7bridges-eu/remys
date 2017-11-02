@@ -27,4 +27,11 @@
         (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
           (response/ok (q/query-by-composite-key @db/schema table id))
           (response/ok (q/query-by-key @db/schema table id)))
-        (response/not-found {:msg "Table not found"})))))
+        (response/not-found {:msg "Table not found"})))
+
+    (api/POST "/dynamic" []
+      :body-params [query :- String
+                    {params :- [String] []}]
+      (if (q/valid-query? query)
+        (response/ok (q/execute-query query params))
+        (response/not-found {:msg "Query not valid"})))))

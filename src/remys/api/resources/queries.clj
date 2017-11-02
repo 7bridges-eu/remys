@@ -3,25 +3,25 @@
             [remys.services.mysql :as db]))
 
 (defn show-tables
-  []
-  (keys @db/schema))
+  [schema]
+  (keys schema))
 
 (defn describe-table
-  [t]
-  (get @db/schema t))
+  [schema t]
+  (get schema t))
 
 (defn table-exists?
   "Check if `t` exists in the database."
-  [t]
-  (->> (keys @db/schema)
+  [schema t]
+  (->> (keys schema)
        (some #{t})
        nil?
        not))
 
 (defn primary-key
   "Find the primary key of the table `t`."
-  [t]
-  (->> (get @db/schema t)
+  [schema t]
+  (->> (get schema t)
        (filter #(= (:column-key %) "PRI"))
        first
        :column-name))
@@ -32,8 +32,8 @@
       (db/query!)))
 
 (defn query-by-id
-  [table id]
-  (let [pk (primary-key table)]
+  [schema table id]
+  (let [pk (primary-key schema table)]
     (-> (str "select * from " table " where " pk " = " id)
         (db/query!))))
 

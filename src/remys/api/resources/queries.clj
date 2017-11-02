@@ -60,8 +60,11 @@
 
 (defn query-fields
   [table fields]
-  (let [fs (string/split fields #",")]
-    (-> (str "select " fields " from " table)
+  (let [fs (->> (string/split fields #",")
+                (map #(string/replace % #"-" "_"))
+                (interpose ",")
+                (apply str))]
+    (-> (str "select " fs " from " table)
         (db/query!))))
 
 (defn valid-query?

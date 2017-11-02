@@ -19,13 +19,23 @@ lein run -- -H <hostname> -P <port> -u <username> -p <password> -d <database> st
 
 Now you can interact with your database via REST. Examples:
 
-- get all records from `departments` table:
-``` console
+- get all the records from `departments` table:
+``` shell
 $ curl -i -X GET 'http://localhost:3000/api/departments'
 ```
 
+- get a specific record from `departments` table:
+``` shell
+$ curl -i -X GET 'http://localhost:3000/api/departments/d009'
+```
+
+- get only some columns from `departments` table:
+``` shell
+$ curl -i -X GET 'http://localhost:3000/api/departments?fields=dept-no,dept-name'
+```
+
 - run a custom query:
-``` console
+``` shell
 $ curl -i -X POST 'http://localhost:3000/api/dynamic'\
    -H "Content-Type: application/json"\
    -d '{"query":"select * from salaries limit 100"}'

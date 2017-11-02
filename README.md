@@ -17,6 +17,12 @@ interact with:
 lein run -- -H <hostname> -P <port> -u <username> -p <password> -d <database> start
 ```
 
+Now you can interact with your database via REST:
+
+``` consol
+$ curl -i -X GET 'http://localhost:3000/api/tables'
+```
+
 ## License
 
 Copyright © 2017 7bridges s.r.l.

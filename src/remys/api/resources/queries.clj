@@ -23,18 +23,31 @@
   [schema t]
   (->> (get schema t)
        (filter #(= (:column-key %) "PRI"))
-       first
-       :column-name))
+       (map :column-name)))
 
 (defn query-all
   [table]
   (-> (str "select * from " table)
       (db/query!)))
 
-(defn query-by-id
+(defn query-by-key
   [schema table id]
-  (let [pk (primary-key schema table)]
+  (let [pk (first (primary-key schema table))]
     (-> (str "select * from " table " where " pk " = " id)
+        (db/query!))))
+
+(defn create-where
+  [pks values]
+  (->> (map #(str %1 " = " %2) pks values)
+       (interpose " and ")
+       (apply str)))
+
+(defn query-by-composite-key
+  [schema table ids]
+  (let [pks (primary-key schema table)
+        values (string/split ids #"___")
+        where-cond (create-where pks values)]
+    (-> (str "select * from " table " where " where-cond)
         (db/query!))))
 
 (defn query-fields

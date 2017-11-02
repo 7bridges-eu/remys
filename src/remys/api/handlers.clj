@@ -24,5 +24,7 @@
 
     (api/GET "/:table/:id" [table id]
       (if (q/table-exists? @db/schema table)
-        (response/ok (q/query-by-id @db/schema table id))
+        (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
+          (response/ok (q/query-by-composite-key @db/schema table id))
+          (response/ok (q/query-by-key @db/schema table id)))
         (response/not-found {:msg "Table not found"})))))

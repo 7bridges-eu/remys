@@ -39,7 +39,15 @@
 (deftest test-table-id
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [q/table-exists? (fn [s t] t)
-                  q/query-by-id (fn [s t id] t)]
+                  q/query-by-key (fn [s t id] t)]
       (let [request (mock/request :get "/api/test/1")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
+(deftest test-table-composite-id
+  (testing "Testing /api/:table/:id endpoint"
+    (with-redefs [q/table-exists? (fn [s t] t)
+                  q/query-by-composite-key (fn [s t id] t)]
+      (let [request (mock/request :get "/api/test/1___1")
             response (http/app request)]
         (is (= (:status response) 200))))))

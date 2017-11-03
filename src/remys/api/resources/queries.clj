@@ -120,8 +120,8 @@
          (apply str))))
 
 (defn update-table
-  "Update `table` in `schema`, setting the values in `params` to record
-  identified by ther primary key `id`."
+  "Update `table` in `schema`, setting the values in `params` on the record
+  identified by the primary key `id`."
   [schema table id params]
   (let [pk (first (primary-key schema table))
         vals (format-update-params schema table params)

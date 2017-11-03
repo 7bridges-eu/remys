@@ -1,20 +1,18 @@
 (ns remys.services.mysql
-  (:require [clojure.java.jdbc :as jdbc]
+  (:require [clj-time.coerce :as time-coerce]
+            [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [hikari-cp.core :as hikari]
             [mount.core :as mount]))
 
-(defn format-date [v]
-  (.format (java.text.SimpleDateFormat. "dd/MM/yyyy HH:mm:ss") v))
-
 (extend-protocol jdbc/IResultSetReadColumn
   java.sql.Date
   (result-set-read-column [col _ _]
-    (format-date col))
+    (time-coerce/to-long col))
 
   java.sql.Timestamp
   (result-set-read-column [col _ _]
-    (format-date col)))
+    (time-coerce/to-long col)))
 
 (defn- make-datasource-options
   "Set up the necessary parameters in `options` to connect to a MySQL database."

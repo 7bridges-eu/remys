@@ -84,16 +84,31 @@
   (nil? (re-matches #"(?i)^.*(create|delete|drop|update).*" query)))
 
 (defn format-params
-  "Format `params` interposing 'and' between them."
-  [params]
-  (->> (interpose " and " params)
-       (apply str)))
+  "Format `params` map for as where conditions or update set values, interposing
+  `separator` between them."
+  [params separator]
+  (let [ks (->> (keys params) (map name) (map #(string/replace % #"-" "_")))
+        vs (->> (vals params) (map escape-string))]
+    (->> (map #(str %1 " = " %2) ks vs)
+         (interpose separator)
+         (apply str))))
 
 (defn execute-query
   "Execute `query` with `params`, if they are present."
-  [query params]
-  (if (empty? params)
-    (db/query! query)
-    (->> (format-params params)
-         (str query " where ")
-         (db/query!))))
+  ([query]
+   (db/query! query))
+  ([query params]
+   (if (empty? params)
+     (db/query! query)
+     (->> (format-params params " and ")
+          (str query " where ")
+          (db/query!)))))
+
+(defn update-table
+  "Update `table` in `schema`, setting the values in `params` to record
+  identified by ther primary key `id`."
+  [schema table id params]
+  (let [pk (first (primary-key schema table))
+        vals (format-params params ",")
+        query (str "update " table " set " vals " where " pk " = "id)]
+    (db/update! [query])))

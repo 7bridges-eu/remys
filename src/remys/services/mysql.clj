@@ -1,5 +1,6 @@
 (ns remys.services.mysql
-  (:require [clj-time.coerce :as time-coerce]
+  (:require [clj-time.coerce :as c]
+            [clj-time.format :as f]
             [clojure.java.jdbc :as jdbc]
             [clojure.string :as string]
             [hikari-cp.core :as hikari]
@@ -8,20 +9,19 @@
 (extend-protocol jdbc/IResultSetReadColumn
   java.sql.Date
   (result-set-read-column [col _ _]
-    (time-coerce/to-long col))
+    (c/to-long col))
 
   java.sql.Timestamp
   (result-set-read-column [col _ _]
-    (time-coerce/to-long col)))
+    (c/to-long col)))
 
 (defn column-type
   "For `table` in `schema`, get `column` type."
   [schema table column]
-  (let [col (string/replace column #"-" "_")]
-    (-> #(= (:column-name %) col)
-        (filter (get schema table))
-        first
-        :column-type)))
+  (-> #(= (:column-name %) column)
+      (filter (get schema table))
+      first
+      :column-type))
 
 (defn date?
   [schema table column]
@@ -39,9 +39,12 @@
   "Coerce `value` to the needed type for the `column` in `table`."
   [schema table column value]
   (cond
-    (date? schema table column) (time-coerce/to-sql-date value)
-    (datetime? schema table column) (time-coerce/to-sql-time value)
-    (timestamp? schema table column) (time-coerce/to-sql-time value)
+    (date? schema table column) (->> (c/from-long value)
+                                     (f/unparse (f/formatters :mysql)))
+    (datetime? schema table column) (->> (c/from-long value)
+                                         (f/unparse (f/formatters :mysql)))
+    (timestamp? schema table column) (->> (c/from-long value)
+                                          (f/unparse (f/formatters :mysql)))
     :else value))
 
 (defn- make-datasource-options

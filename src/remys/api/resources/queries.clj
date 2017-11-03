@@ -71,13 +71,12 @@
         (db/query!))))
 
 (defn format-params
-  "Format `params` map for as where conditions or update set values, interposing
-  `separator` between them."
-  [params separator]
+  "Format `params` map as where conditions."
+  [params]
   (let [ks (->> (keys params) (map name) (map #(string/replace % #"-" "_")))
         vs (->> (vals params) (map escape-string))]
     (->> (map #(str %1 " = " %2) ks vs)
-         (interpose separator)
+         (interpose " and ")
          (apply str))))
 
 (defn execute-query
@@ -87,15 +86,38 @@
   ([query params]
    (if (empty? params)
      (db/query! query)
-     (->> (format-params params " and ")
+     (->> (format-params params)
           (str query " where ")
           (db/query!)))))
+
+(defn params->mysql-params
+  "Convert `params` in a format suitable for MySQL."
+  [schema table params]
+  (reduce-kv
+   (fn [m k v]
+     (let [col (-> (name k)
+                   (string/replace #"-" "_"))
+           value (-> (db/format-value schema table col (.longValue v))
+                     (escape-string))]
+       (assoc m col value)))
+   {}
+   params))
+
+(defn format-update-params
+  "Format `params` map as update set values."
+  [schema table params]
+  (let [mysql-params (params->mysql-params schema table params)
+        ks (keys mysql-params)
+        vs (vals mysql-params)]
+    (->> (map #(str %1 " = " %2) ks vs)
+         (interpose ",")
+         (apply str))))
 
 (defn update-table
   "Update `table` in `schema`, setting the values in `params` to record
   identified by ther primary key `id`."
   [schema table id params]
   (let [pk (first (primary-key schema table))
-        vals (format-params params ",")
-        query (str "update " table " set " vals " where " pk " = "id)]
+        vals (format-update-params schema table params)
+        query (str "update " table " set " vals " where " pk " = " id)]
     (db/update! [query])))

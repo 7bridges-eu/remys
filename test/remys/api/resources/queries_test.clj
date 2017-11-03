@@ -13,12 +13,6 @@
     (let [schema {:test "test"}]
       (is (= (q/describe-table schema :test) "test")))))
 
-(deftest test-table-exists?
-  (testing "Testing table-exists? resource"
-    (let [schema {:test "test"}]
-      (is (= (true? (q/table-exists? schema :test))))
-      (is (= (false? (q/table-exists? schema :testing)))))))
-
 (deftest test-primary-key
   (testing "Testing primary-key resource"
     (let [schema {:test [{:column-key "PRI" :column-name "id"}]}]

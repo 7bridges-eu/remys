@@ -20,6 +20,22 @@
        nil?
        not))
 
+(defn column-exists?
+  "Check if `column` exists in `table` of `schema`."
+  [schema table column]
+  (let [col (string/replace column #"-" "_")]
+    (-> #(= (:column-name %) col)
+        (filter (get schema table))
+        empty?
+        not)))
+
+(defn columns-exist?
+  "Check if all the `columns` exists in `table` of `schema`."
+  [schema table columns]
+  (println columns)
+  (->> (map #(column-exists? schema table %) columns)
+       (every? true?)))
+
 (defn primary-key
   "Find the primary key of `table`."
   [schema table]

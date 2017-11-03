@@ -37,8 +37,15 @@ $ curl -i -X GET 'http://localhost:3000/api/departments?fields=dept-no,dept-name
 - run a custom query:
 ``` shell
 $ curl -i -X POST 'http://localhost:3000/api/dynamic'\
-   -H "Content-Type: application/json"\
-   -d '{"query":"select * from salaries limit 100"}'
+    -H "Content-Type: application/json"\
+    -d '{"query":"select * from salaries limit 100"}'
+```
+
+- update a record:
+
+``` shell
+curl -i -X PUT 'http://localhost:3000/api/employeaes/10001'\
+  -H "Content-Type: application/json" -d '{"gender": "F"}'
 ```
 
 remys has been tested using the freely available

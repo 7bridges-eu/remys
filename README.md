@@ -42,9 +42,8 @@ $ curl -i -X POST 'http://localhost:3000/api/dynamic'\
 ```
 
 - update a record:
-
 ``` shell
-curl -i -X PUT 'http://localhost:3000/api/employeaes/10001'\
+$ curl -i -X PUT 'http://localhost:3000/api/employeaes/10001'\
   -H "Content-Type: application/json" -d '{"gender": "F"}'
 ```
 

@@ -47,7 +47,7 @@
             params (w/keywordize-keys (get req :body-params))
             cols (keys (get req :body-params))]
         (if (q/table-exists? @db/schema table)
-          (if (not (empty? (q/query-by-key @db/schema table id)))
+          (if (q/record-exists? @db/schema table id)
            (if (q/columns-exist? @db/schema table cols)
              (response/ok (q/update-table @db/schema table id params))
              (response/not-found {:msg "Invalid columns"}))

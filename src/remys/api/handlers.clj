@@ -33,5 +33,8 @@
       :body-params [query :- String
                     {params :- [String] []}]
       (if (q/valid-query? query)
-        (response/ok (q/execute-query query params))
+        (try
+          (response/ok (q/execute-query query params))
+          (catch Exception e
+            (response/not-found {:msg (str "Error: " e)})))
         (response/not-found {:msg "Query not valid"})))))

@@ -65,6 +65,8 @@
 (deftest test-update-table
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [q/table-exists? (fn [s t] t)
+                  q/record-exists? (fn [s t id] t)
+                  q/columns-exist? (fn [s t cols] t)
                   q/update-table (fn [s t id params] params)]
       (let [body (json/generate-string {:test 1})
             request (-> (mock/request :put "/api/test/1" body)

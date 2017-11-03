@@ -90,16 +90,22 @@
           (str query " where ")
           (db/query!)))))
 
+(defn format-column-value
+  "Convert `value` in format suitable for MySQL."
+  [schema table column value]
+  (if (number? value)
+    (-> (db/format-value schema table column (.longValue value))
+        (escape-string))
+    (escape-string value)))
+
 (defn params->mysql-params
   "Convert `params` in a format suitable for MySQL."
   [schema table params]
   (reduce-kv
    (fn [m k v]
-     (let [col (-> (name k)
-                   (string/replace #"-" "_"))
-           value (-> (db/format-value schema table col (.longValue v))
-                     (escape-string))]
-       (assoc m col value)))
+     (let [column (-> (name k) (string/replace #"-" "_"))
+           value (format-column-value schema table column v)]
+       (assoc m column value)))
    {}
    params))
 

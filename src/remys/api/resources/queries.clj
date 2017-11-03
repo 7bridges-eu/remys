@@ -36,13 +36,6 @@
   (->> (map #(column-exists? schema table %) columns)
        (every? true?)))
 
-(defn record-exists?
-  "Check if the record identified by `id` exists in the `table` in `schema`."
-  [schema table id]
-  (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
-    (not (empty? (query-by-composite-key schema table id)))
-    (not (empty? (query-by-key schema table id)))))
-
 (defn primary-key
   "Find the primary key of `table`."
   [schema table]
@@ -126,6 +119,13 @@
      (->> (format-params params " and ")
           (str query " where ")
           (db/query!)))))
+
+(defn record-exists?
+  "Check if the record identified by `id` exists in the `table` in `schema`."
+  [schema table id]
+  (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
+    (not (empty? (query-by-composite-key schema table id)))
+    (not (empty? (query-by-key schema table id)))))
 
 (defn update-table
   "Update `table` in `schema`, setting the values in `params` to record

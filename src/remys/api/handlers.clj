@@ -44,8 +44,8 @@
     (api/PUT "/:table/:id" req
       (let [table (get-in req [:route-params :table])
             id (get-in req [:route-params :id])
-            params (w/keywordize-keys (get req :body-params))
-            cols (keys (get req :body-params))]
+            cols (keys (get req :body-params))
+            params (w/keywordize-keys (get req :body-params))]
         (if (q/table-exists? @db/schema table)
           (if (q/record-exists? @db/schema table id)
            (if (q/columns-exist? @db/schema table cols)

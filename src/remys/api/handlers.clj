@@ -1,5 +1,7 @@
 (ns remys.api.handlers
-  (:require [compojure.api.sweet :as api]
+  (:require [cheshire.core :as json]
+            [clojure.walk :as w]
+            [compojure.api.sweet :as api]
             [remys.api.resources.queries :as q]
             [remys.services.mysql :as db]
             [ring.util.http-response :as response]))
@@ -31,10 +33,18 @@
 
     (api/POST "/dynamic" []
       :body-params [query :- String
-                    {params :- [String] []}]
+                    {params :- clojure.lang.PersistentArrayMap {}}]
       (if (q/valid-query? query)
         (try
           (response/ok (q/execute-query query params))
           (catch Exception e
             (response/not-found {:msg (str "Error: " e)})))
-        (response/not-found {:msg "Query not valid"})))))
+        (response/not-found {:msg "Query not valid"})))
+
+    (api/PUT "/:table/:id" req
+      (let [table (get-in req [:route-params :table])
+            id (get-in req [:route-params :id])
+            params (w/keywordize-keys (get req :body-params))]
+        (if (q/table-exists? @db/schema table)
+          (response/ok (q/update-table @db/schema table id params))
+          (response/not-found {:msg "Table not found"}))))))

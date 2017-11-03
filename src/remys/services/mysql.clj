@@ -14,6 +14,36 @@
   (result-set-read-column [col _ _]
     (time-coerce/to-long col)))
 
+(defn column-type
+  "For `table` in `schema`, get `column` type."
+  [schema table column]
+  (let [col (string/replace column #"-" "_")]
+    (-> #(= (:column-name %) col)
+        (filter (get schema table))
+        first
+        :column-type)))
+
+(defn date?
+  [schema table column]
+  (= "date" (column-type schema table column)))
+
+(defn datetime?
+  [schema table column]
+  (= "datetime" (column-type schema table column)))
+
+(defn timestamp?
+  [schema table column]
+  (= "timestamp" (column-type schema table column)))
+
+(defn format-value
+  "Coerce `value` to the needed type for the `column` in `table`."
+  [schema table column value]
+  (cond
+    (date? schema table column) (time-coerce/to-sql-date value)
+    (datetime? schema table column) (time-coerce/to-sql-time value)
+    (timestamp? schema table column) (time-coerce/to-sql-time value)
+    :else value))
+
 (defn- make-datasource-options
   "Set up the necessary parameters in `options` to connect to a MySQL database."
   [options]

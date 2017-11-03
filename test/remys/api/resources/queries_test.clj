@@ -51,4 +51,10 @@
 (deftest test-execute-query
   (testing "Testing execute-query resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
-      (is (= (q/execute-query "test" "1") {:test "test"})))))
+      (is (= (q/execute-query "test" {:id 1}) {:test "test"})))))
+
+(deftest test-update-table
+  (testing "Testing update-table resource"
+    (let [schema {:test [{:column-key "PRI" :column-name "id"}]}]
+        (with-redefs [db/update! (fn [s] {:test "test"})]
+       (is (= (q/update-table schema "test" 1 {:id 1}) {:test "test"}))))))

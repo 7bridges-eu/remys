@@ -23,10 +23,34 @@
         (is (= (:status response) 200))))))
 
 (deftest table-with-fields-test
-  (testing "Testing /api/:table endpoint with query parameters"
+  (testing "Testing /api/:table endpoint with fields as query parameter"
     (with-redefs [c/table-exists? (fn [s t] t)
-                  q/query-fields (fn [t fs] t)]
+                  q/query-by-fields (fn [t fs] t)]
       (let [request (mock/request :get "/api/test?fields=id")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
+(deftest table-with-size-test
+  (testing "Testing /api/:table endpoint with size as query parameter"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  q/query-by-size (fn [t s] t)]
+      (let [request (mock/request :get "/api/test?size=10")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
+(deftest table-with-page-test
+  (testing "Testing /api/:table endpoint with page as query parameter"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  q/query-by-page (fn [t p] t)]
+      (let [request (mock/request :get "/api/test?page=1")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
+(deftest table-with-fields-and-pagetest
+  (testing "Testing /api/:table endpoint with fields and page query parameters"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  q/query-by-fields-and-page (fn [t fs p] t)]
+      (let [request (mock/request :get "/api/test?fields=id&page=1")
             response (http/app request)]
         (is (= (:status response) 200))))))
 

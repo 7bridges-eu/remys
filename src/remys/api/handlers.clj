@@ -13,11 +13,36 @@
       (response/ok (q/show-tables @db/schema)))
 
     (api/GET "/:table" [table]
-      :query-params [{fields :- String ""}]
+      :query-params [{fields :- String ""}
+                     {size :- String ""}
+                     {page :- String ""}]
       (if (c/table-exists? @db/schema table)
-        (if (empty? fields)
-          (response/ok (q/query-all table))
-          (response/ok (q/query-fields table fields)))
+        (cond
+          (and (not (empty? fields)) (not (empty? page)))
+          (if (re-matches #"\d+" page)
+            (->> (Integer/parseInt page)
+                 (q/query-by-fields-and-page table fields)
+                 (response/ok))
+            (response/not-found {:msg "Page must be a number"}))
+
+          (not (empty? fields))
+          (response/ok (q/query-by-fields table fields))
+
+          (not (empty? size))
+          (if (re-matches #"\d+" size)
+            (->> (Integer/parseInt size)
+                 (q/query-by-size table)
+                 (response/ok))
+            (response/not-found {:msg "Size must be a number"}))
+
+          (not (empty? page))
+          (if (re-matches #"\d+" page)
+            (->> (Integer/parseInt page)
+                 (q/query-by-page table)
+                 (response/ok))
+            (response/not-found {:msg "Page must be a number"}))
+
+          :else (response/ok (q/query-all table)))
         (response/not-found {:msg "Table not found"})))
 
     (api/GET "/:table/describe" [table]

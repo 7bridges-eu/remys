@@ -35,7 +35,7 @@
 (defn query-all
   "Select all columns of all the records in `table`."
   [table]
-  (-> (str "select * from " table)
+  (-> (str "select * from " table " limit 20")
       (db/query!)))
 
 (defn query-by-key
@@ -65,7 +65,7 @@
     (-> (str "select * from " table " where " where-cond)
         (db/query!))))
 
-(defn query-fields
+(defn query-by-fields
   "Query `table` selecting only the given `fields`.
   `fields` is a string with comma-separated values."
   [table fields]
@@ -73,7 +73,32 @@
                 (map #(string/replace % #"-" "_"))
                 (interpose ",")
                 (apply str))]
-    (-> (str "select " fs " from " table)
+    (-> (str "select " fs " from " table " limit 20")
+        (db/query!))))
+
+(defn query-by-size
+  "Query `table` selecting `size` records."
+  [table size]
+  (-> (str "select * from " table " limit " size)
+      (db/query!)))
+
+(defn query-by-page
+  "Query `table` selecting the given `page` from the results."
+  [table page]
+  (let [offset (* (- page 1) 20)]
+    (-> (str "select * from " table " limit " offset ", 20")
+       (db/query!))))
+
+(defn query-by-fields-and-page
+  "Query `table` selecting only the given `fields` and `page`.
+  `fields` is a string with comma-separated values."
+  [table fields page]
+  (let [fs (->> (string/split fields #",")
+                (map #(string/replace % #"-" "_"))
+                (interpose ",")
+                (apply str))
+        offset (* (- page 1) 20)]
+    (-> (str "select " fs " from " table " limit " offset ", 20")
         (db/query!))))
 
 (defn format-params

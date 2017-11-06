@@ -42,10 +42,25 @@
         (is (= (q/query-by-composite-key schema :test "1___1")
                {:test "test"}))))))
 
-(deftest query-fields-test
-  (testing "Testing query-fields resource"
+(deftest query-by-fields-test
+  (testing "Testing query-by-fields resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
-      (is (= (q/query-fields :test "id") {:test "test"})))))
+      (is (= (q/query-by-fields :test "id") {:test "test"})))))
+
+(deftest query-by-size-test
+  (testing "Testing query-by-size resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-size :test 20) {:test "test"})))))
+
+(deftest query-by-page-test
+  (testing "Testing query-by-page resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-page :test 1) {:test "test"})))))
+
+(deftest query-by-fields-and-page-test
+  (testing "Testing query-by-fields-and-page resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-and-page :test "id" 1) {:test "test"})))))
 
 (deftest execute-query-test
   (testing "Testing execute-query resource"

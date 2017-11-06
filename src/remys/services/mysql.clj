@@ -114,10 +114,13 @@
    output))
 
 (defn query!
-  "Execute a SELECT statement using the SQL in `query-sql`."
+  "Execute a SELECT statement using the SQL in `query-sql`.
+  Column names are returned preserving their original case."
   [query-sql]
   (jdbc/with-db-connection [conn {:datasource datasource}]
-    (map format-output-keywords (jdbc/query conn query-sql))))
+    (->> {:identifiers (partial identity)}
+         (jdbc/query conn query-sql)
+         (map format-output-keywords))))
 
 (defn insert!
   "Insert `values` into `table`.

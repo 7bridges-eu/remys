@@ -131,5 +131,5 @@
   [schema table id params]
   (let [pk (first (primary-key schema table))
         vals (format-update-params schema table params)
-        query (str "update " table " set " vals " where " pk " = " id)]
+        query (str "update " table " set " vals " where " pk " = '" id "'")]
     (db/update! [query])))

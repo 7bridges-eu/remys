@@ -18,6 +18,7 @@
                      {page :- String ""}]
       (if (c/table-exists? @db/schema table)
         (cond
+          ;; Query by fields and page
           (and (not (empty? fields)) (not (empty? page)))
           (if (re-matches #"\d+" page)
             (->> (Integer/parseInt page)
@@ -25,9 +26,11 @@
                  (response/ok))
             (response/not-found {:msg "Page must be a number"}))
 
+          ;; Query by fields
           (not (empty? fields))
           (response/ok (q/query-by-fields table fields))
 
+          ;; Query by size
           (not (empty? size))
           (if (re-matches #"\d+" size)
             (->> (Integer/parseInt size)
@@ -35,6 +38,7 @@
                  (response/ok))
             (response/not-found {:msg "Size must be a number"}))
 
+          ;; Query by page
           (not (empty? page))
           (if (re-matches #"\d+" page)
             (->> (Integer/parseInt page)
@@ -42,6 +46,7 @@
                  (response/ok))
             (response/not-found {:msg "Page must be a number"}))
 
+          ;; Query all records
           :else (response/ok (q/query-all table)))
         (response/not-found {:msg "Table not found"})))
 
@@ -77,10 +82,14 @@
             id (get-in req [:route-params :id])
             cols (keys (get req :body-params))
             params (w/keywordize-keys (get req :body-params))]
-        (if (c/table-exists? @db/schema table)
-          (if (c/record-exists? @db/schema table id)
-            (if (c/columns-exist? @db/schema table cols)
-              (response/ok (q/update-table @db/schema table id params))
-              (response/not-found {:msg "Invalid columns"}))
-            (response/not-found {:msg "Record not present"}))
-          (response/not-found {:msg "Table not found"}))))))
+        (cond
+          (not (c/table-exists? @db/schema table))
+          (response/not-found {:msg "Table not found"})
+
+          (not (c/record-exists? @db/schema table id))
+          (response/not-found {:msg "Record not present"})
+
+          (not (c/columns-exist? @db/schema table cols))
+          (response/not-found {:msg "Invalid columns"})
+
+          :else (response/ok (q/update-table @db/schema table id params)))))))

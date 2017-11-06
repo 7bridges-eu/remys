@@ -25,10 +25,17 @@
   (->> (map #(column-exists? schema table %) columns)
        (every? true?)))
 
+(defn composite-key?
+  "Check if `id` is a composite key.
+  To be a composite key, the values in `id` must be separated by three
+  underscores."
+  [id]
+  (not (nil? (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id))))
+
 (defn record-exists?
   "Check if the record identified by `id` exists in the `table` in `schema`."
   [schema table id]
-  (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
+  (if (composite-key? id)
     (not (empty? (q/query-by-composite-key schema table id)))
     (not (empty? (q/query-by-key schema table id)))))
 
@@ -40,7 +47,7 @@
 (defn string->number?
   "Check if `s` is a string corresponding to number."
   [s]
-  (re-matches #"\d+" s))
+  (not (nil? (re-matches #"\d+" s))))
 
 (defn valid-query-fields?
   "Check that `fields` matches the columns in the `table` in `schema`.

@@ -21,6 +21,11 @@
     (is (true? (c/columns-exist? schema "test" ["test1" "test2"])))
     (is (false? (c/columns-exist? schema "test" ["testing"])))))
 
+(deftest composite-key?-test
+  (testing "Testing composite-key? resource"
+    (is (true? (c/composite-key? "1___1")))
+    (is (false? (c/composite-key? "1a")))))
+
 (deftest record-exists?-test
   (testing "Testing record-exists? resource"
     (with-redefs [q/query-by-composite-key (fn [s t id] {:test "test"})
@@ -37,8 +42,8 @@
 
 (deftest string->number?-test
   (testing "Testing string->number? resource"
-    (is (= "42" (c/string->number? "42")))
-    (is (nil? (c/string->number? "test")))))
+    (is (true? (c/string->number? "42")))
+    (is (false? (c/string->number? "test")))))
 
 (deftest valid-query-fields?-test
   (testing "Testing valid-query-fields? resource"

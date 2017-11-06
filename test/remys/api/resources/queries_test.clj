@@ -18,6 +18,11 @@
     (let [schema {:test [{:column-key "PRI" :column-name "id"}]}]
       (is (= (q/primary-key schema :test) (list "id"))))))
 
+(deftest test-count-records
+  (testing "Testing count-records resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/count-records :test) {:test "test"})))))
+
 (deftest test-query-all
   (testing "Testing query-all resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
@@ -27,7 +32,7 @@
   (testing "Testing query-by-key resource"
     (let [schema {:test [{:column-key "PRI" :column-name "id"}]}]
       (with-redefs [db/query! (fn [s] {:test "test"})]
-       (is (= (q/query-by-key schema :test 1) {:test "test"}))))))
+        (is (= (q/query-by-key schema :test 1) {:test "test"}))))))
 
 (deftest test-query-by-composite-key
   (testing "Testing query-by-composite-key resource"
@@ -50,5 +55,5 @@
 (deftest test-update-table
   (testing "Testing update-table resource"
     (let [schema {:test [{:column-key "PRI" :column-name "id"}]}]
-        (with-redefs [db/update! (fn [s] {:test "test"})]
-       (is (= (q/update-table schema "test" 1 {:id 1}) {:test "test"}))))))
+      (with-redefs [db/update! (fn [s] {:test "test"})]
+        (is (= (q/update-table schema "test" 1 {:id 1}) {:test "test"}))))))

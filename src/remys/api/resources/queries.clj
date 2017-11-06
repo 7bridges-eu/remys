@@ -26,6 +26,12 @@
     (str "'" s "'")
     s))
 
+(defn count-records
+  "Return the number of records in `table`."
+  [table]
+  (-> (str "select count(*) as records from " table)
+      (db/query!)))
+
 (defn query-all
   "Select all columns of all the records in `table`."
   [table]

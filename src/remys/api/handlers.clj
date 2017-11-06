@@ -25,6 +25,11 @@
         (response/ok (q/describe-table @db/schema table))
         (response/not-found {:msg "Table not found"})))
 
+    (api/GET "/:table/count" [table]
+      (if (c/table-exists? @db/schema table)
+        (response/ok (q/count-records table))
+        (response/not-found {:msg "Table not found"})))
+
     (api/GET "/:table/:id" [table id]
       (if (c/table-exists? @db/schema table)
         (if (re-matches #"[a-zA-Z0-9]+___[a-zA-Z0-9]+" id)
@@ -49,8 +54,8 @@
             params (w/keywordize-keys (get req :body-params))]
         (if (c/table-exists? @db/schema table)
           (if (c/record-exists? @db/schema table id)
-           (if (c/columns-exist? @db/schema table cols)
-             (response/ok (q/update-table @db/schema table id params))
-             (response/not-found {:msg "Invalid columns"}))
-           (response/not-found {:msg "Record not present"}))
+            (if (c/columns-exist? @db/schema table cols)
+              (response/ok (q/update-table @db/schema table id params))
+              (response/not-found {:msg "Invalid columns"}))
+            (response/not-found {:msg "Record not present"}))
           (response/not-found {:msg "Table not found"}))))))

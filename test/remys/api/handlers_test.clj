@@ -38,6 +38,14 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
+(deftest test-count-records
+  (testing "Testing /api/:table/count endpoint"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  q/count-records (fn [t] t)]
+      (let [request (mock/request :get "/api/test/count")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
 (deftest test-table-id
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)

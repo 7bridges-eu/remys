@@ -7,14 +7,14 @@
             [remys.services.http :as http]
             [ring.mock.request :as mock]))
 
-(deftest test-tables
+(deftest tables-test
   (testing "Testing /api/tables endpoint"
     (with-redefs [q/show-tables (fn [s] s)]
       (let [request (mock/request :get "/api/tables")
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-table-all-fields
+(deftest table-all-fields-test
   (testing "Testing /api/:table endpoint with no query parameters"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/query-all (fn [t] t)]
@@ -22,7 +22,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-table-with-fields
+(deftest table-with-fields-test
   (testing "Testing /api/:table endpoint with query parameters"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/query-fields (fn [t fs] t)]
@@ -30,7 +30,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-table-describe
+(deftest table-describe-test
   (testing "Testing /api/:table/describe endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/describe-table (fn [s t] t)]
@@ -38,7 +38,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-count-records
+(deftest count-records-test
   (testing "Testing /api/:table/count endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/count-records (fn [t] t)]
@@ -46,7 +46,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-table-id
+(deftest table-id-test
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/query-by-key (fn [s t id] t)]
@@ -54,7 +54,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-table-composite-id
+(deftest table-composite-id-test
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/query-by-composite-key (fn [s t id] t)]
@@ -62,7 +62,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-dynamic
+(deftest dynamic-query-test
   (testing "Testing /api/dynamic endpoint"
     (with-redefs [c/valid-query? (fn [s] s)
                   q/execute-query (fn [s v] s)]
@@ -72,7 +72,7 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest test-update-table
+(deftest update-table-test
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   c/record-exists? (fn [s t id] t)

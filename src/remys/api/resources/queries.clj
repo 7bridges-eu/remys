@@ -122,7 +122,7 @@
           (db/query!)))))
 
 (defn format-column-value
-  "Convert `value` in format suitable for MySQL."
+  "Convert `value` in a format suitable for MySQL."
   [schema table column value]
   (if (number? value)
     (-> (db/format-value schema table column (.longValue value))

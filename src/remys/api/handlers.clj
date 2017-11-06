@@ -7,6 +7,33 @@
             [remys.services.mysql :as db]
             [ring.util.http-response :as response]))
 
+(defn query-by-fields-and-page
+  "If `page` is a number, query `table` extracting only given `fields`."
+  [table fields page]
+  (if (re-matches #"\d+" page)
+    (->> (Integer/parseInt page)
+         (q/query-by-fields-and-page table fields)
+         (response/ok))
+    (response/not-found {:msg "Page must be a number"})))
+
+(defn query-by-size
+  "If `size` is a number, extract only `size` records from `table`."
+  [table size]
+  (if (re-matches #"\d+" size)
+    (->> (Integer/parseInt size)
+         (q/query-by-size table)
+         (response/ok))
+    (response/not-found {:msg "Size must be a number"})))
+
+(defn query-by-page
+  "If `page` is a number, extract only the results in `page` from `table`."
+  [table page]
+  (if (re-matches #"\d+" page)
+    (->> (Integer/parseInt page)
+         (q/query-by-page table)
+         (response/ok))
+    (response/not-found {:msg "Page must be a number"})))
+
 (api/defapi apis
   (api/context "/api" [table id fields]
     (api/GET "/tables" []
@@ -18,35 +45,18 @@
                      {page :- String ""}]
       (if (c/table-exists? @db/schema table)
         (cond
-          ;; Query by fields and page
           (and (not (empty? fields)) (not (empty? page)))
-          (if (re-matches #"\d+" page)
-            (->> (Integer/parseInt page)
-                 (q/query-by-fields-and-page table fields)
-                 (response/ok))
-            (response/not-found {:msg "Page must be a number"}))
+          (query-by-fields-and-page table fields page)
 
-          ;; Query by fields
           (not (empty? fields))
           (response/ok (q/query-by-fields table fields))
 
-          ;; Query by size
           (not (empty? size))
-          (if (re-matches #"\d+" size)
-            (->> (Integer/parseInt size)
-                 (q/query-by-size table)
-                 (response/ok))
-            (response/not-found {:msg "Size must be a number"}))
+          (query-by-size table size)
 
-          ;; Query by page
           (not (empty? page))
-          (if (re-matches #"\d+" page)
-            (->> (Integer/parseInt page)
-                 (q/query-by-page table)
-                 (response/ok))
-            (response/not-found {:msg "Page must be a number"}))
+          (query-by-page table page)
 
-          ;; Query all records
           :else (response/ok (q/query-all table)))
         (response/not-found {:msg "Table not found"})))
 

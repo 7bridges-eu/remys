@@ -25,6 +25,7 @@
 (deftest table-with-fields-test
   (testing "Testing /api/:table endpoint with fields as query parameter"
     (with-redefs [c/table-exists? (fn [s t] t)
+                  c/valid-query-fields? (fn [s t fs] t)
                   q/query-by-fields (fn [t fs] t)]
       (let [request (mock/request :get "/api/test?fields=id")
             response (http/app request)]
@@ -46,10 +47,12 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
-(deftest table-with-fields-and-pagetest
+(deftest table-with-fields-and-page-test
   (testing "Testing /api/:table endpoint with fields and page query parameters"
     (with-redefs [c/table-exists? (fn [s t] t)
-                  q/query-by-fields-and-page (fn [t fs p] t)]
+                  c/valid-query-fields? (fn [s t fs] t)
+                  c/string->number? (fn [p] p)
+                  q/query-by-fields-and-page (fn [t fs p] p)]
       (let [request (mock/request :get "/api/test?fields=id&page=1")
             response (http/app request)]
         (is (= (:status response) 200))))))

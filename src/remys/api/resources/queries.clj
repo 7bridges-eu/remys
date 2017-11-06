@@ -87,7 +87,7 @@
   [table page]
   (let [offset (* (- page 1) 20)]
     (-> (str "select * from " table " limit " offset ", 20")
-       (db/query!))))
+        (db/query!))))
 
 (defn query-by-fields-and-page
   "Query `table` selecting only the given `fields` and `page`.

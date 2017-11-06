@@ -8,27 +8,39 @@
             [ring.util.http-response :as response]))
 
 (defn query-by-fields-and-page
-  "If `page` is a number, query `table` extracting only given `fields`."
-  [table fields page]
-  (if (re-matches #"\d+" page)
-    (->> (Integer/parseInt page)
-         (q/query-by-fields-and-page table fields)
-         (response/ok))
-    (response/not-found {:msg "Page must be a number"})))
+  "Query `table` in `schema` extracting only `fields` for `page`."
+  [schema table fields page]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? page))
+    (response/not-found {:msg "Page must be a number"})
+
+    :else (->> (Integer/parseInt page)
+               (q/query-by-fields-and-page table fields)
+               (response/ok))))
+
+(defn query-by-fields
+  "Extract only `fields` (columns) from `table` in `schema`."
+  [schema table fields]
+  (if (c/valid-query-fields? schema table fields)
+    (response/ok (q/query-by-fields table fields))
+    (response/not-found {:msg "Fields invalid"})))
 
 (defn query-by-size
-  "If `size` is a number, extract only `size` records from `table`."
+  "Extract only `size` records from `table`."
   [table size]
-  (if (re-matches #"\d+" size)
+  (if (c/string->number? size)
     (->> (Integer/parseInt size)
          (q/query-by-size table)
          (response/ok))
     (response/not-found {:msg "Size must be a number"})))
 
 (defn query-by-page
-  "If `page` is a number, extract only the results in `page` from `table`."
+  "Extract only the results in `page` from `table`."
   [table page]
-  (if (re-matches #"\d+" page)
+  (if (c/string->number? page)
     (->> (Integer/parseInt page)
          (q/query-by-page table)
          (response/ok))
@@ -46,10 +58,10 @@
       (if (c/table-exists? @db/schema table)
         (cond
           (and (not (empty? fields)) (not (empty? page)))
-          (query-by-fields-and-page table fields page)
+          (query-by-fields-and-page @db/schema table fields page)
 
           (not (empty? fields))
-          (response/ok (q/query-by-fields table fields))
+          (query-by-fields @db/schema table fields)
 
           (not (empty? size))
           (query-by-size table size)

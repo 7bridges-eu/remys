@@ -19,8 +19,8 @@
        (filter #(= (:column-key %) "PRI"))
        (map :column-name)))
 
-(defn escape-string
-  "Enclose `s` in single quotes if `s` is a string. Useful for SQL."
+(defn wrap-string
+  "Wrap `s` in single quotes if `s` is a string. Useful for SQL."
   [s]
   (if (string? s)
     (str "'" s "'")
@@ -36,7 +36,7 @@
   "Query `table` in `schema` by its primary key `id`."
   [schema table id]
   (let [pk (first (primary-key schema table))]
-    (->> (escape-string id)
+    (->> (wrap-string id)
          (str "select * from " table " where " pk " = ")
          (db/query!))))
 
@@ -44,7 +44,7 @@
   "Create the where conditions linking `pks` to `values.`
   E.g.: id = 1 and name = 'test'"
   [pks values]
-  (->> (map escape-string values)
+  (->> (map wrap-string values)
        (map #(str %1 " = " %2) pks)
        (interpose " and ")
        (apply str)))
@@ -74,7 +74,7 @@
   "Format `params` map as where conditions."
   [params]
   (let [ks (->> (keys params) (map name) (map #(string/replace % #"-" "_")))
-        vs (->> (vals params) (map escape-string))]
+        vs (->> (vals params) (map wrap-string))]
     (->> (map #(str %1 " = " %2) ks vs)
          (interpose " and ")
          (apply str))))
@@ -95,8 +95,8 @@
   [schema table column value]
   (if (number? value)
     (-> (db/format-value schema table column (.longValue value))
-        (escape-string))
-    (escape-string value)))
+        (wrap-string))
+    (wrap-string value)))
 
 (defn params->mysql-params
   "Convert `params` in a format suitable for MySQL."

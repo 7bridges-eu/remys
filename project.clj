@@ -7,7 +7,6 @@
                  [clj-time "0.14.0"]
                  [compojure "1.6.0"]
                  [hikari-cp "1.8.1"]
-                 [http-kit "2.2.0"]
                  [metosin/compojure-api "1.1.11"]
                  [metosin/ring-http-response "0.9.0"]
                  [mount "0.1.11"]

@@ -7,18 +7,36 @@
             [remys.services.mysql :as db]
             [ring.util.http-response :as response]))
 
-(defn query-by-fields-and-page
-  "Query `table` in `schema` extracting only `fields` for `page`."
-  [schema table fields page]
+(defn query-by-fields-size-and-offset
+  "Query `table` in `schema` extracting only `fields` for `size` and `offset`."
+  [schema table fields size offset]
   (cond
     (not (c/valid-query-fields? schema table fields))
     (response/not-found {:msg "Fields invalid"})
 
-    (not (c/string->number? page))
-    (response/not-found {:msg "Page must be a number"})
+    (not (c/string->number? size))
+    (response/not-found {:msg "Size must be a number"})
 
-    :else (->> (Integer/parseInt page)
-               (q/query-by-fields-and-page table fields)
+    (not (c/string->number? offset))
+    (response/not-found {:msg "Offset must be a number"})
+
+    :else (let [s (Integer/parseInt size)
+                o (Integer/parseInt offset)]
+            (-> (q/query-by-fields-size-and-offset table fields size offset)
+                (response/ok)))))
+
+(defn query-by-fields-and-offset
+  "Query `table` in `schema` extracting only `fields` for `offset`."
+  [schema table fields offset]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? offset))
+    (response/not-found {:msg "Offset must be a number"})
+
+    :else (->> (Integer/parseInt offset)
+               (q/query-by-fields-and-offset table fields)
                (response/ok))))
 
 (defn query-by-fields
@@ -37,14 +55,14 @@
          (response/ok))
     (response/not-found {:msg "Size must be a number"})))
 
-(defn query-by-page
-  "Extract only the results in `page` from `table`."
-  [table page]
-  (if (c/string->number? page)
-    (->> (Integer/parseInt page)
-         (q/query-by-page table)
+(defn query-by-offset
+  "Extract only the results in `offset` from `table`."
+  [table offset]
+  (if (c/string->number? offset)
+    (->> (Integer/parseInt offset)
+         (q/query-by-offset table)
          (response/ok))
-    (response/not-found {:msg "Page must be a number"})))
+    (response/not-found {:msg "Offset must be a number"})))
 
 (api/defapi apis
   (api/context "/api" [table id fields]
@@ -54,11 +72,14 @@
     (api/GET "/:table" [table]
       :query-params [{fields :- String ""}
                      {size :- String ""}
-                     {page :- String ""}]
+                     {offset :- String ""}]
       (if (c/table-exists? @db/schema table)
         (cond
-          (and (not (empty? fields)) (not (empty? page)))
-          (query-by-fields-and-page @db/schema table fields page)
+          (and (not (empty? fields)) (not (empty? size)) (not (empty? offset)))
+          (query-by-fields-size-and-offset @db/schema table fields size offset)
+
+          (and (not (empty? fields)) (not (empty? offset)))
+          (query-by-fields-and-offset @db/schema table fields offset)
 
           (not (empty? fields))
           (query-by-fields @db/schema table fields)
@@ -66,8 +87,8 @@
           (not (empty? size))
           (query-by-size table size)
 
-          (not (empty? page))
-          (query-by-page table page)
+          (not (empty? offset))
+          (query-by-offset table offset)
 
           :else (response/ok (q/query-all table)))
         (response/not-found {:msg "Table not found"})))

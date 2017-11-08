@@ -41,24 +41,6 @@
       (is (= (q/query-by-composite-key schema "test2" "1___1")
              {:test "test"})))))
 
-(deftest kebab-case->snake-case-test
-  (testing "Testing kebab-case->snake-case resource"
-    (let [v ["test-col" "Test"]]
-      (is (= (q/kebab-case->snake-case v)
-             ["test_col" "Test"])))))
-
-(deftest format-as-test
-  (testing "Testing format-as resource"
-    (let [v ["test" "Test"]]
-      (is (= (q/format-as v)
-             "test as Test")))))
-
-(deftest format-fields
-  (testing "Testing format-fields resource"
-    (let [fs "id,text:Text"]
-      (is (= (q/format-fields fs)
-             "id, text as Text")))))
-
 (deftest query-by-fields-test
   (testing "Testing query-by-fields resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
@@ -69,15 +51,21 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-size :test 20) {:test "test"})))))
 
-(deftest query-by-page-test
-  (testing "Testing query-by-page resource"
+(deftest query-by-offset-test
+  (testing "Testing query-by-offset resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
-      (is (= (q/query-by-page :test 1) {:test "test"})))))
+      (is (= (q/query-by-offset :test 1) {:test "test"})))))
 
-(deftest query-by-fields-and-page-test
-  (testing "Testing query-by-fields-and-page resource"
+(deftest query-by-fields-and-offset-test
+  (testing "Testing query-by-fields-and-offset resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
-      (is (= (q/query-by-fields-and-page :test "id" 1) {:test "test"})))))
+      (is (= (q/query-by-fields-and-offset :test "id" 1) {:test "test"})))))
+
+(deftest query-by-fields-size-and-offset-test
+  (testing "Testing query-by-fields-size-and-offset resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-size-and-offset :test "id" 1 1)
+             {:test "test"})))))
 
 (deftest execute-query-test
   (testing "Testing execute-query resource"

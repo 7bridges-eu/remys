@@ -65,14 +65,40 @@
     (-> (str "select * from " table " where " where-cond)
         (db/query!))))
 
+(defn kebab-case->snake-case
+  "Transform the first element of `v` from kebab-case to snake_case."
+  [v]
+  (let [col (first v)
+        as (second v)]
+    (vector (db/kebab-case->snake-case col) as)))
+
+(defn format-as
+  "Format the elements in `v` as SQL query parameters.
+  E.g.: [test Test] => test as test
+        [test] => test"
+  [v]
+  (let [col (first v)
+        as (second v)]
+    (if as
+      (str col " as " as)
+      col)))
+
+(defn format-fields
+  "Transform `fs` in a format suitable for MySQL.
+  E.g.: id,text:Text => id, text as Text"
+  [fs]
+  (->> (string/split fs #",")
+       (map #(string/split % #":"))
+       (map kebab-case->snake-case)
+       (map format-as)
+       (interpose ", ")
+       (apply str)))
+
 (defn query-by-fields
   "Query `table` selecting only the given `fields`.
   `fields` is a string with comma-separated values."
   [table fields]
-  (let [fs (->> (string/split fields #",")
-                (map #(string/replace % #"-" "_"))
-                (interpose ",")
-                (apply str))]
+  (let [fs (format-fields fields)]
     (-> (str "select " fs " from " table " limit 20")
         (db/query!))))
 
@@ -93,10 +119,7 @@
   "Query `table` selecting only the given `fields` and `page`.
   `fields` is a string with comma-separated values."
   [table fields page]
-  (let [fs (->> (string/split fields #",")
-                (map #(string/replace % #"-" "_"))
-                (interpose ",")
-                (apply str))
+  (let [fs (format-fields fields)
         offset (* (- page 1) 20)]
     (-> (str "select " fs " from " table " limit " offset ", 20")
         (db/query!))))
@@ -104,7 +127,7 @@
 (defn format-params
   "Format `params` map as where conditions."
   [params]
-  (let [ks (->> (keys params) (map name) (map #(string/replace % #"-" "_")))
+  (let [ks (->> (keys params) (map name) (map db/kebab-case->snake-case))
         vs (->> (vals params) (map wrap-string))]
     (->> (map #(str %1 " = " %2) ks vs)
          (interpose " and ")
@@ -134,7 +157,7 @@
   [schema table params]
   (reduce-kv
    (fn [m k v]
-     (let [column (-> (name k) (string/replace #"-" "_"))
+     (let [column (-> (name k) (db/kebab-case->snake-case))
            value (format-column-value schema table column v)]
        (assoc m column value)))
    {}

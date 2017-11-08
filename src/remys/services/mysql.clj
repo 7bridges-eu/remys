@@ -87,20 +87,19 @@
 
 (defn snake-case->kebab-case
   [column]
-  (when (keyword? column)
-    (keyword (string/replace (name column) #"_" "-"))))
+  (string/replace column #"_" "-"))
 
 (defn kebab-case->snake-case
   [column]
-  (when (keyword? column)
-    (keyword (string/replace (name column) #"-" "_"))))
+  (string/replace column #"-" "_"))
 
 (defn format-input-keywords
   "Convert `input` keywords from kebab-case to snake_case."
   [input]
   (reduce-kv
    (fn [m k v]
-     (assoc m (kebab-case->snake-case k) v))
+     (let [col (-> (name k) (kebab-case->snake-case) keyword)]
+       (assoc m col v)))
    {}
    input))
 
@@ -109,7 +108,8 @@
   [output]
   (reduce-kv
    (fn [m k v]
-     (assoc m (snake-case->kebab-case k) v))
+     (let [col (-> (name k) (snake-case->kebab-case) keyword)]
+       (assoc m col v)))
    {}
    output))
 

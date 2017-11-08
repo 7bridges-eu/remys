@@ -49,9 +49,22 @@
   [s]
   (not (nil? (re-matches #"\d+" s))))
 
+(defn column
+  "Return the first part (column name) of `s`, where `s` is \"column:alias\"."
+  [s]
+  (->> (string/split s #":")
+       first))
+
+(defn as
+  "Return the second part (alias) of `s`, where `s` is \"column:alias\"."
+  [s]
+  (->> (string/split s #":")
+       second))
+
 (defn valid-query-fields?
   "Check that `fields` matches the columns in the `table` in `schema`.
   `fields` is a string with comma-separated values."
   [schema table fields]
   (->> (string/split fields #",")
+       (map column)
        (columns-exist? schema table)))

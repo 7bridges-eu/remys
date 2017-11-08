@@ -45,7 +45,17 @@
     (is (true? (c/string->number? "42")))
     (is (false? (c/string->number? "test")))))
 
+(deftest column-test
+  (testing "Testing column resource"
+    (is (= "test" (c/column "test:Test")))
+    (is (not= "testing" (c/column "test:Test")))))
+
+(deftest as-test
+  (testing "Testing as resource"
+    (is (= "Test" (c/as "test:Test")))
+    (is (not= "Testing" (c/as "test:Test")))))
+
 (deftest valid-query-fields?-test
   (testing "Testing valid-query-fields? resource"
-    (is (true? (c/valid-query-fields? schema "test" "test1,test2")))
+    (is (true? (c/valid-query-fields? schema "test" "test1:test1,test2")))
     (is (false? (c/valid-query-fields? schema "test" "testing1,testing2")))))

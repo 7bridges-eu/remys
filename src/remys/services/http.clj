@@ -1,21 +1,23 @@
 (ns remys.services.http
   (:require [compojure.core :as compojure]
             [mount.core :as mount]
+            [org.httpkit.server :as server]
             [remys.api.routes :as api]
-            [ring.adapter.jetty :as jetty]
             [ring.middleware.reload :as reload]))
 
 (compojure/defroutes app
   (-> (compojure/routes api/routes)
       reload/wrap-reload))
 
-(defonce server (jetty/run-jetty #'app {:port 3000 :join? false}))
+(defonce server (atom nil))
 
 (defn stop-server! []
-  (.stop server))
+  (when-not (nil? @server)
+    (@server :timeout 100)
+    (reset! server nil)))
 
 (defn start-server! []
-  (.start server))
+  (reset! server (server/run-server app {:port 3000})))
 
 (mount/defstate http-server
   :start (start-server!)

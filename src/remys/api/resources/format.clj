@@ -36,6 +36,22 @@
       (str col " as " as)
       col)))
 
+(defn format-like
+  "Format `column` and `like` as an SQL where condition."
+  [column like]
+  (str column " like '%" like "%'"))
+
+(defn format-likes
+  "Format the elements in `fs` as SQL where conditions with `like`."
+  [fs like]
+  (->> (string/split fs #",")
+       (map #(string/split % #":"))
+       (map kebab-case->snake-case)
+       (map first)
+       (map #(format-like % like))
+       (interpose " or ")
+       (apply str)))
+
 (defn format-fields
   "Transform `fs` in a format suitable for MySQL.
   E.g.: id,text:Text => id, text as Text"

@@ -46,6 +46,11 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-fields :test "id") {:test "test"})))))
 
+(deftest query-by-fields-and-like-test
+  (testing "Testing query-by-fields-and-like resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-and-like :test "id" "test") {:test "test"})))))
+
 (deftest query-by-size-test
   (testing "Testing query-by-size resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
@@ -61,15 +66,33 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-fields-and-size :test "id" 1) {:test "test"})))))
 
+(deftest query-by-fields-like-and-size-test
+  (testing "Testing query-by-fields-like-and-size resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-like-and-size :test "id" "test" 1)
+             {:test "test"})))))
+
 (deftest query-by-fields-and-offset-test
   (testing "Testing query-by-fields-and-offset resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-fields-and-offset :test "id" 1) {:test "test"})))))
 
+(deftest query-by-fields-like-and-offset-test
+  (testing "Testing query-by-fields-like-and-offset resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-like-and-offset :test "id" "test" 1)
+             {:test "test"})))))
+
 (deftest query-by-fields-size-and-offset-test
   (testing "Testing query-by-fields-size-and-offset resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-fields-size-and-offset :test "id" 1 1)
+             {:test "test"})))))
+
+(deftest query-by-fields-like-size-and-offset-test
+  (testing "Testing query-by-fields-like-size-and-offset resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-like-size-and-offset :test "id" "test" 1 1)
              {:test "test"})))))
 
 (deftest execute-query-test

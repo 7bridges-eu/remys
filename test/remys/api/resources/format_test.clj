@@ -19,20 +19,27 @@
 (deftest kebab-case->snake-case-test
   (testing "Testing kebab-case->snake-case resource"
     (let [v ["test-col" "Test"]]
-      (is (= (f/kebab-case->snake-case v)
-             ["test_col" "Test"])))))
+      (is (= (f/kebab-case->snake-case v) ["test_col" "Test"])))))
 
 (deftest format-as-test
   (testing "Testing format-as resource"
     (let [v ["test" "Test"]]
-      (is (= (f/format-as v)
-             "test as Test")))))
+      (is (= (f/format-as v) "test as Test")))))
+
+(deftest format-like
+  (testing "Testing format-like resource"
+    (is (= (f/format-like "id" "test") "id like '%test%'"))))
+
+(deftest format-likes
+  (testing "Testing format-likes resource"
+    (let [fs "id,text:Text"
+          like "test"]
+      (is (f/format-likes fs like) "id like '%test%' or Text like '%test%'"))))
 
 (deftest format-fields-test
   (testing "Testing format-fields resource"
     (let [fs "id,text:Text"]
-      (is (= (f/format-fields fs)
-             "id, text as Text")))))
+      (is (= (f/format-fields fs) "id, text as Text")))))
 
 (deftest format-params-test
   (testing "Testing format-params resource"

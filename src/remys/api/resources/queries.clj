@@ -63,6 +63,15 @@
     (-> (str "select " fs " from " table)
         (db/query!))))
 
+(defn query-by-fields-and-like
+  "Query `table` selecting only `fields` with a `like` in the where clause.
+  `fields` is a string with comma-separated values."
+  [table fields like]
+  (let [fs (f/format-fields fields)
+        likes (f/format-likes fields like)]
+    (-> (str "select " fs " from " table " where " likes)
+        (db/query!))))
+
 (defn query-by-size
   "Query `table` selecting `size` records."
   [table size]
@@ -83,6 +92,15 @@
     (-> (str "select " fs " from " table " limit 0, " size)
         (db/query!))))
 
+(defn query-by-fields-like-and-size
+  "Query `table` selecting only the given `fields` and `size` with `like`.
+  `fields` is a string with comma-separated values."
+  [table fields like size]
+  (let [fs (f/format-fields fields)
+        likes (f/format-likes fields like)]
+    (-> (str "select " fs " from " table " where " likes " limit 0, " size)
+        (db/query!))))
+
 (defn query-by-fields-and-offset
   "Query `table` selecting only the given `fields` and `offset`.
   `fields` is a string with comma-separated values."
@@ -91,12 +109,32 @@
     (-> (str "select " fs " from " table " limit " offset ", " max-size)
         (db/query!))))
 
+(defn query-by-fields-like-and-offset
+  "Query `table` selecting only the given `fields` and `offset` with `like`.
+  `fields` is a string with comma-separated values."
+  [table fields like offset]
+  (let [fs (f/format-fields fields)
+        likes (f/format-likes fields like)]
+    (-> (str "select " fs " from " table " where " likes
+             " limit " offset ", " max-size)
+        (db/query!))))
+
 (defn query-by-fields-size-and-offset
   "Query `table` selecting only the given `fields`, `size` and `offset`.
   `fields` is a string with comma-separated values."
   [table fields size offset]
   (let [fs (f/format-fields fields)]
     (-> (str "select " fs " from " table " limit " offset ", " size)
+        (db/query!))))
+
+(defn query-by-fields-like-size-and-offset
+  "Query `table` selecting the given `fields`, `size` and `offset` with `like`.
+  `fields` is a string with comma-separated values."
+  [table fields like size offset]
+  (let [fs (f/format-fields fields)
+        likes (f/format-likes fields like)]
+    (-> (str "select " fs " from " table " where " likes
+             " limit " offset ", " size)
         (db/query!))))
 
 (defn execute-query

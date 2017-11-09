@@ -7,6 +7,23 @@
             [remys.services.mysql :as db]
             [ring.util.http-response :as response]))
 
+(defn query-by-fields-like-size-and-offset
+  "Query `table` in `schema`, get `fields` for `size` and `offset` with `like`."
+  [schema table fields like size offset]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? size))
+    (response/not-found {:msg "Size must be a number"})
+
+    (not (c/string->number? offset))
+    (response/not-found {:msg "Offset must be a number"})
+
+    :else (-> (q/query-by-fields-like-size-and-offset
+               table fields like size offset)
+              (response/ok))))
+
 (defn query-by-fields-size-and-offset
   "Query `table` in `schema` extracting only `fields` for `size` and `offset`."
   [schema table fields size offset]
@@ -23,6 +40,19 @@
     :else (-> (q/query-by-fields-size-and-offset table fields size offset)
               (response/ok))))
 
+(defn query-by-fields-like-and-size
+  "Query `table` in `schema` extracting only `fields` for `size` with `like`."
+  [schema table fields like size]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? size))
+    (response/not-found {:msg "Size must be a number"})
+
+    :else (-> (q/query-by-fields-like-and-size table fields like size)
+              (response/ok))))
+
 (defn query-by-fields-and-size
   "Query `table` in `schema` extracting only `fields` for `size`."
   [schema table fields size]
@@ -34,6 +64,19 @@
     (response/not-found {:msg "Size must be a number"})
 
     :else (-> (q/query-by-fields-and-size table fields size)
+              (response/ok))))
+
+(defn query-by-fields-like-and-offset
+  "Query `table` in `schema` extracting only `fields` for `offset` with `like`."
+  [schema table fields like offset]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? offset))
+    (response/not-found {:msg "Offset must be a number"})
+
+    :else (-> (q/query-by-fields-like-and-offset table fields like offset)
               (response/ok))))
 
 (defn query-by-fields-and-offset
@@ -48,6 +91,13 @@
 
     :else (-> (q/query-by-fields-and-offset table fields offset)
               (response/ok))))
+
+(defn query-by-fields-and-like
+  "Extract only `fields` (columns) from `table` in `schema` with `like`."
+  [schema table fields like]
+  (if (c/valid-query-fields? schema table fields)
+    (response/ok (q/query-by-fields-and-like table fields like))
+    (response/not-found {:msg "Fields invalid"})))
 
 (defn query-by-fields
   "Extract only `fields` (columns) from `table` in `schema`."
@@ -79,18 +129,33 @@
 
     (api/GET "/:table" [table]
       :query-params [{fields :- String ""}
+                     {like :- String ""}
                      {size :- String ""}
                      {offset :- String ""}]
       (if (c/table-exists? @db/schema table)
         (cond
+          (and (not (empty? fields)) (not (empty? like))
+               (not (empty? size)) (not (empty? offset)))
+          (query-by-fields-like-size-and-offset
+           @db/schema table fields like size offset)
+
           (and (not (empty? fields)) (not (empty? size)) (not (empty? offset)))
           (query-by-fields-size-and-offset @db/schema table fields size offset)
+
+          (and (not (empty? fields)) (not (empty? like)) (not (empty? size)))
+          (query-by-fields-like-and-size @db/schema table fields like size)
 
           (and (not (empty? fields)) (not (empty? size)))
           (query-by-fields-and-size @db/schema table fields size)
 
+          (and (not (empty? fields)) (not (empty? like)) (not (empty? offset)))
+          (query-by-fields-like-and-offset @db/schema table fields like offset)
+
           (and (not (empty? fields)) (not (empty? offset)))
           (query-by-fields-and-offset @db/schema table fields offset)
+
+          (and (not (empty? fields)) (not (empty? like)))
+          (query-by-fields-and-like @db/schema table like fields)
 
           (not (empty? fields))
           (query-by-fields @db/schema table fields)

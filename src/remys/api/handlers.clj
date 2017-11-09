@@ -129,6 +129,20 @@
     (response/ok (q/count-records-with-fields-and-like table fields like))
     (response/not-found {:msg "Fields invalid"})))
 
+(defn query-by-composite-key-and-fields
+  "Extract only `fields` of record with `id` from `table` in `schema`."
+  [schema table id fields]
+  (if (c/valid-query-fields? schema table fields)
+    (response/ok (q/query-by-composite-key-and-fields schema table id fields))
+    (response/not-found {:msg "Fields invalid"})))
+
+(defn query-by-key-and-fields
+  "Extract only `fields` of record with `id` from `table` in `schema`."
+  [schema table id fields]
+  (if (c/valid-query-fields? schema table fields)
+    (response/ok (q/query-by-key-and-fields schema table id fields))
+    (response/not-found {:msg "Fields invalid"})))
+
 (api/defapi apis
   (api/context "/api" [table id fields]
     (api/GET "/tables" []
@@ -191,10 +205,19 @@
         (response/not-found {:msg "Table not found"})))
 
     (api/GET "/:table/:id" [table id]
+      :query-params [{fields :- String ""}]
       (if (c/table-exists? @db/schema table)
-        (if (c/composite-key? id)
+        (cond
+          (and (not (empty? fields)) (c/composite-key? id))
+          (query-by-composite-key-and-fields @db/schema table id fields)
+
+          (not (empty? fields))
+          (query-by-key-and-fields @db/schema table id fields)
+
+          (c/composite-key? id)
           (response/ok (q/query-by-composite-key @db/schema table id))
-          (response/ok (q/query-by-key @db/schema table id)))
+
+          :else (response/ok (q/query-by-key @db/schema table id)))
         (response/not-found {:msg "Table not found"})))
 
     (api/POST "/dynamic" []

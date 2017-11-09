@@ -52,6 +52,15 @@
          (str "select * from " table " where " pk " = ")
          (db/query!))))
 
+(defn query-by-key-and-fields
+  "Select `fields` from `table` in `schema` by its primary key `id`."
+  [schema table id fields]
+  (let [pk (first (primary-key schema table))
+        fs (f/format-fields fields)]
+    (->> (f/wrap-string id)
+         (str "select " fs " from "table " where " pk " = ")
+         (db/query!))))
+
 (defn query-by-composite-key
   "Query the `table` in `schema` using its composite primary key `ids`.
   `ids` is a string where the values are separated by three underscores."
@@ -60,6 +69,17 @@
         values (string/split ids #"___")
         where-cond (f/create-where pks values)]
     (-> (str "select * from " table " where " where-cond)
+        (db/query!))))
+
+(defn query-by-composite-key-and-fields
+  "Select `fields` from `table` in `schema` using its composite key `ids`.
+  `ids` is a string where the values are separated by three underscores."
+  [schema table ids fields]
+  (let [pks (primary-key schema table)
+        values (string/split ids #"___")
+        where-cond (f/create-where pks values)
+        fs (f/format-fields fields)]
+    (-> (str "select " fs " from " table " where " where-cond)
         (db/query!))))
 
 (defn query-by-fields

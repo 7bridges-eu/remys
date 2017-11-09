@@ -41,10 +41,22 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-key schema :test 1) {:test "test"})))))
 
+(deftest query-by-key-and-fields-test
+  (testing "Testing query-by-key-and-fields resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-key-and-fields schema :test 1 "test")
+             {:test "test"})))))
+
 (deftest query-by-composite-key-test
   (testing "Testing query-by-composite-key resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-composite-key schema "test2" "1___1")
+             {:test "test"})))))
+
+(deftest query-by-composite-key-and-fields-test
+  (testing "Testing query-by-composite-key-and-fields resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-composite-key-and-fields schema "test2" "1___1" "test")
              {:test "test"})))))
 
 (deftest query-by-fields-test

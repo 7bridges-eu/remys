@@ -149,11 +149,29 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
+(deftest table-id-test-with-fields
+  (testing "Testing /api/:table/:id endpoint with fields parameter"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  c/valid-query-fields? (fn [s t fs] t)
+                  q/query-by-key-and-fields (fn [s t id fs] t)]
+      (let [request (mock/request :get "/api/test/1?fields=id")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
 (deftest table-composite-id-test
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)
                   q/query-by-composite-key (fn [s t id] t)]
       (let [request (mock/request :get "/api/test/1___1")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
+(deftest table-composite-id-test-with-fields
+  (testing "Testing /api/:table/:id endpoint with fields parameter"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  c/valid-query-fields? (fn [s t fs] t)
+                  q/query-by-composite-key-and-fields (fn [s t id fs] t)]
+      (let [request (mock/request :get "/api/test/1___1?fields=id")
             response (http/app request)]
         (is (= (:status response) 200))))))
 

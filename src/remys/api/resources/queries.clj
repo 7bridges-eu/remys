@@ -3,6 +3,11 @@
             [remys.api.resources.format :as f]
             [remys.services.mysql :as db]))
 
+(def max-size
+  "The larger size to be used as limit size in a MySQL select query.
+  See: https://dev.mysql.com/doc/refman/5.7/en/select.html"
+  18446744073709551615)
+
 (defn show-tables
   "Show all the tables in `schema`."
   [schema]
@@ -29,7 +34,7 @@
 (defn query-all
   "Select all columns of all the records in `table`."
   [table]
-  (-> (str "select * from " table " limit 20")
+  (-> (str "select * from " table)
       (db/query!)))
 
 (defn query-by-key
@@ -55,7 +60,7 @@
   `fields` is a string with comma-separated values."
   [table fields]
   (let [fs (f/format-fields fields)]
-    (-> (str "select " fs " from " table " limit 20")
+    (-> (str "select " fs " from " table)
         (db/query!))))
 
 (defn query-by-size
@@ -65,17 +70,25 @@
       (db/query!)))
 
 (defn query-by-offset
-  "Query `table` selecting the given `offset` from the results."
+  "Query `table` from the given `offset`."
   [table offset]
-  (-> (str "select * from " table " limit " offset ", 20")
+  (-> (str "select * from " table " limit " offset ", " max-size)
       (db/query!)))
+
+(defn query-by-fields-and-size
+  "Query `table` selecting only the given `fields` and `size`.
+  `fields` is a string with comma-separated values."
+  [table fields size]
+  (let [fs (f/format-fields fields)]
+    (-> (str "select " fs " from " table " limit 0, " size)
+        (db/query!))))
 
 (defn query-by-fields-and-offset
   "Query `table` selecting only the given `fields` and `offset`.
   `fields` is a string with comma-separated values."
   [table fields offset]
   (let [fs (f/format-fields fields)]
-    (-> (str "select " fs " from " table " limit " offset ", 20")
+    (-> (str "select " fs " from " table " limit " offset ", " max-size)
         (db/query!))))
 
 (defn query-by-fields-size-and-offset

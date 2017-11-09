@@ -20,10 +20,21 @@
     (not (c/string->number? offset))
     (response/not-found {:msg "Offset must be a number"})
 
-    :else (let [s (Integer/parseInt size)
-                o (Integer/parseInt offset)]
-            (-> (q/query-by-fields-size-and-offset table fields size offset)
-                (response/ok)))))
+    :else (-> (q/query-by-fields-size-and-offset table fields size offset)
+              (response/ok))))
+
+(defn query-by-fields-and-size
+  "Query `table` in `schema` extracting only `fields` for `size`."
+  [schema table fields size]
+  (cond
+    (not (c/valid-query-fields? schema table fields))
+    (response/not-found {:msg "Fields invalid"})
+
+    (not (c/string->number? size))
+    (response/not-found {:msg "Size must be a number"})
+
+    :else (-> (q/query-by-fields-and-size table fields size)
+              (response/ok))))
 
 (defn query-by-fields-and-offset
   "Query `table` in `schema` extracting only `fields` for `offset`."
@@ -35,9 +46,8 @@
     (not (c/string->number? offset))
     (response/not-found {:msg "Offset must be a number"})
 
-    :else (->> (Integer/parseInt offset)
-               (q/query-by-fields-and-offset table fields)
-               (response/ok))))
+    :else (-> (q/query-by-fields-and-offset table fields offset)
+              (response/ok))))
 
 (defn query-by-fields
   "Extract only `fields` (columns) from `table` in `schema`."
@@ -50,18 +60,16 @@
   "Extract only `size` records from `table`."
   [table size]
   (if (c/string->number? size)
-    (->> (Integer/parseInt size)
-         (q/query-by-size table)
-         (response/ok))
+    (-> (q/query-by-size table size)
+        (response/ok))
     (response/not-found {:msg "Size must be a number"})))
 
 (defn query-by-offset
   "Extract only the results in `offset` from `table`."
   [table offset]
   (if (c/string->number? offset)
-    (->> (Integer/parseInt offset)
-         (q/query-by-offset table)
-         (response/ok))
+    (-> (q/query-by-offset table offset)
+        (response/ok))
     (response/not-found {:msg "Offset must be a number"})))
 
 (api/defapi apis
@@ -77,6 +85,9 @@
         (cond
           (and (not (empty? fields)) (not (empty? size)) (not (empty? offset)))
           (query-by-fields-size-and-offset @db/schema table fields size offset)
+
+          (and (not (empty? fields)) (not (empty? size)))
+          (query-by-fields-and-size @db/schema table fields size)
 
           (and (not (empty? fields)) (not (empty? offset)))
           (query-by-fields-and-offset @db/schema table fields offset)

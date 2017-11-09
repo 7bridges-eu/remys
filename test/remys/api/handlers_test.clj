@@ -47,6 +47,16 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
+(deftest table-with-fields-and-size-test
+  (testing "Testing /api/:table endpoint with fields and size query"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  c/valid-query-fields? (fn [s t fs] t)
+                  c/string->number? (fn [o] o)
+                  q/query-by-fields-and-size (fn [t fs s] s)]
+      (let [request (mock/request :get "/api/test?fields=id&size=1")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
 (deftest table-with-fields-and-offset-test
   (testing "Testing /api/:table endpoint with fields and offset query"
     (with-redefs [c/table-exists? (fn [s t] t)

@@ -56,6 +56,11 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/query-by-offset :test 1) {:test "test"})))))
 
+(deftest query-by-fields-and-size-test
+  (testing "Testing query-by-fields-and-size resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/query-by-fields-and-size :test "id" 1) {:test "test"})))))
+
 (deftest query-by-fields-and-offset-test
   (testing "Testing query-by-fields-and-offset resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]

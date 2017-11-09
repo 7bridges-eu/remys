@@ -36,7 +36,7 @@
   [table fields like]
   (let [likes (f/format-likes fields like)]
     (-> (str "select count(*) as records from " table " where " likes)
-       (db/query!))))
+        (db/query!))))
 
 (defn query-all
   "Select all columns of all the records in `table`."

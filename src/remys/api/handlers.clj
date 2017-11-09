@@ -122,6 +122,13 @@
         (response/ok))
     (response/not-found {:msg "Offset must be a number"})))
 
+(defn count-with-fields-and-like
+  "Count records of `table` in `schema` filter by `fields` with `like`."
+  [schema table fields like]
+  (if (c/valid-query-fields? schema table fields)
+    (response/ok (q/count-records-with-fields-and-like table fields like))
+    (response/not-found {:msg "Fields invalid"})))
+
 (api/defapi apis
   (api/context "/api" [table id fields]
     (api/GET "/tables" []
@@ -175,8 +182,12 @@
         (response/not-found {:msg "Table not found"})))
 
     (api/GET "/:table/count" [table]
+      :query-params [{fields :- String ""}
+                     {like :- String ""}]
       (if (c/table-exists? @db/schema table)
-        (response/ok (q/count-records table))
+        (if (and (not (empty? fields)) (not (empty? like)))
+          (count-with-fields-and-like @db/schema table fields like)
+          (response/ok (q/count-records table)))
         (response/not-found {:msg "Table not found"})))
 
     (api/GET "/:table/:id" [table id]

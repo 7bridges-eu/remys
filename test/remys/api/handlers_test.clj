@@ -132,6 +132,15 @@
             response (http/app request)]
         (is (= (:status response) 200))))))
 
+(deftest count-records-with-fields-and-like-test
+  (testing "Testing /api/:table/count endpoint with fields and like parameters"
+    (with-redefs [c/table-exists? (fn [s t] t)
+                  c/valid-query-fields? (fn [s t fs] t)
+                  q/count-records-with-fields-and-like (fn [t fs l] t)]
+      (let [request (mock/request :get "/api/test/count?fields=id&like=i")
+            response (http/app request)]
+        (is (= (:status response) 200))))))
+
 (deftest table-id-test
   (testing "Testing /api/:table/:id endpoint"
     (with-redefs [c/table-exists? (fn [s t] t)

@@ -31,6 +31,13 @@
   (-> (str "select count(*) as records from " table)
       (db/query!)))
 
+(defn count-records-with-fields-and-like
+  "Return the number of records in `table` filter by `fields` with `like`."
+  [table fields like]
+  (let [likes (f/format-likes fields like)]
+    (-> (str "select count(*) as records from " table " where " likes)
+       (db/query!))))
+
 (defn query-all
   "Select all columns of all the records in `table`."
   [table]

@@ -25,6 +25,12 @@
     (with-redefs [db/query! (fn [s] {:test "test"})]
       (is (= (q/count-records :test) {:test "test"})))))
 
+(deftest count-records-with-fields-and-like-test
+  (testing "Testing count-records-with-fields-and-like resource"
+    (with-redefs [db/query! (fn [s] {:test "test"})]
+      (is (= (q/count-records-with-fields-and-like :test "id" "1")
+             {:test "test"})))))
+
 (deftest query-all-test
   (testing "Testing query-all resource"
     (with-redefs [db/query! (fn [s] {:test "test"})]

@@ -101,8 +101,6 @@
 
 (defn start-server!
   [options]
-  (println "Starting server with the following options:")
-  (println (str "\n" options "\n"))
   (db/init-database-connection options)
   (mount/start #'remys.services.mysql/datasource
                #'remys.services.http/http-server)

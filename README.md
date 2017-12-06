@@ -1,6 +1,12 @@
+<p align="center">
+<a href="https://7bridges.eu" title="7bridges.eu s.r.l.">
+<img src="https://7bridges.eu/img/logo-inline.png" alt="7bridges clj-odbp"
+width="500px" height="122px"/></a>
+</p>
+
 # remys
 
-A Clojure library designed to use REST APIs with MySQL databases.
+A Clojure library designed to interact with MySQL databases using REST APIs.
 
 ## Usage
 

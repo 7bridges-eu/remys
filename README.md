@@ -6,7 +6,7 @@ width="500px" height="122px"/></a>
 
 # remys
 
-A Clojure library designed to interact with MySQL databases using REST APIs.
+Interact with MySQL databases using REST APIs.
 
 ## Usage
 

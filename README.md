@@ -60,5 +60,4 @@ remys has been tested using the freely available
 
 Copyright © 2017 7bridges s.r.l.
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Apache License 2.0.

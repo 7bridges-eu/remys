@@ -21,5 +21,5 @@
                  [ring/ring-mock "0.3.1"]
                  [ring-middleware-format "0.7.2"]]
   :plugins [[lein-codox "0.10.3"]]
-  :codox {:project {:name "remys"}}
+  :codox {:project {:name "remys" :package nil}}
   :main remys.core)

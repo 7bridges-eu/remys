@@ -1,5 +1,5 @@
 (defproject remys "0.1.0-SNAPSHOT"
-  :description "remys: Rest API for MySQL databases"
+  :description "remys: Rest APIs for MySQL databases"
   :url "http://lab.7bridges.eu/7b/remys"
   :license {:name "Apache License 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}

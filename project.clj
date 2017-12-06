@@ -1,8 +1,8 @@
 (defproject remys "0.1.0-SNAPSHOT"
   :description "remys: Rest API for MySQL databases"
   :url "http://lab.7bridges.eu/7b/remys"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "Apache License 2.0"
+            :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
   :dependencies [[cheshire "5.8.0"]
                  [clj-time "0.14.0"]
                  [compojure "1.6.0"]
@@ -20,4 +20,6 @@
                  [ring/ring-json "0.4.0"]
                  [ring/ring-mock "0.3.1"]
                  [ring-middleware-format "0.7.2"]]
+  :plugins [[lein-codox "0.10.3"]]
+  :codox {:project {:name "remys"}}
   :main remys.core)

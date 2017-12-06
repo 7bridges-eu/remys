@@ -53,6 +53,9 @@ $ curl -i -X PUT 'http://localhost:3000/api/employees/10001'\
   -H "Content-Type: application/json" -d '{"gender": "F"}'
 ```
 
+For further details check the [APIs
+documentation](https://7bridges-eu.github.io/remys/).
+
 remys has been tested using the freely available
 [test_db](https://github.com/datacharmer/test_db).
 
